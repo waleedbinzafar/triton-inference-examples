@@ -1,2 +1,3 @@
 /audio.wav
-data/audio.wav
+data/*
+examply.ipynb
