@@ -8,14 +8,27 @@ import librosa
 import logging
 
 if __name__=="__main__":
-    client = httpclient.InferenceServerClient(url="localhost:8000", verbose=True)
+    client = httpclient.InferenceServerClient(url="localhost:8000", verbose=False)
     audio_file = "audio.wav"
     y, sr = librosa.load(audio_file, sr=16000)
-    input_data = np.array(y, dtype=np.float32)
-    input_data = input_data.tobytes()
-    input_data = httpclient.InferInput("INPUT__0", [1, len(input_data)])
-    input_data.set_data_from_bytes(input_data)
-    output_data = httpclient.InferRequestedOutput("OUTPUT__0")
-    response = client.infer(model_name="bpm_librosa", inputs=[input_data], outputs=[output_data])
-    bpm = response.as_numpy("OUTPUT__0")
-    print(f"bpm: {bpm}")
+
+    model_name="bpm_librosa"
+
+    inputs = []
+    outputs = []
+    
+    input_name = "INPUT__0"
+    output_name = "OUTPUT__0"
+    audio_data = y
+    # audio_data = np.expand_dims(audio_data, axis=0)
+
+    inputs.append(httpclient.InferInput(input_name, audio_data.shape, "FP32"))
+    outputs.append(httpclient.InferRequestedOutput(output_name))
+
+    inputs[0].set_data_from_numpy(audio_data)
+    response = client.infer(
+        model_name=model_name, inputs=inputs, outputs=outputs
+    )
+
+    output_data = response.as_numpy(output_name)
+    print(output_data)

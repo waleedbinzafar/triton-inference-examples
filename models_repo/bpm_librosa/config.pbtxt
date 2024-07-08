@@ -1,23 +1,22 @@
 name: "bpm_librosa"
 backend: "python"
-max_batch_size: 1
 input [
-    {
-        name: "INPUT__0",
-        data_type: TYPE_FP32,
-        dims: [1, 44100]
-    }
+  {
+    name: "INPUT__0"
+    data_type: TYPE_FP32
+    dims: [ -1 ]
+  }
 ]
 output [
-    {
-        name: "bpm",
-        data_type: INPUT__0,
-        dims: [1]
-    }
+  {
+    name: "OUTPUT__0"
+    data_type: TYPE_FP32
+    dims: [ -1 ]
+  }
 ]
-resouce_group {
-    device_limit: {
-        key: "cpu"
-        value: 2
-    }
-}
+instance_group [
+  {
+    count: 1
+    kind: KIND_CPU
+  }
+]

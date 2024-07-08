@@ -20,9 +20,13 @@ class TritonPythonModel:
                 input_data = pb_utils.get_input_tensor_by_name(request, "INPUT__0")
                 audio_data = input_data.as_numpy()
                 bpm = self.get_bpm(audio_data)
-                output_data = pb_utils.Tensor("OUTPUT__0", np.array([bpm], dtype=np.float32))
-                response = pb_utils.InferenceResponse(output_tensors=[output_data])
-                responses.append(response)
+                
+                output_data = np.array([bpm], dtype=np.float32)
+                
+                output_tensor = pb_utils.Tensor("OUTPUT__0", output_data)
+                
+                inference_response = pb_utils.InferenceResponse(output_tensors=[output_tensor])
+                responses.append(inference_response)
             except Exception as e:
                 self.logger.error(f"Error processing request: {e}")
                 response = pb_utils.InferenceResponse(output_tensors=[], error="Error processing request")
@@ -30,7 +34,8 @@ class TritonPythonModel:
         return responses
 
     def get_bpm(self, audio_data):
-        y, sr = librosa.load(audio_data, sr=None)
+        y = audio_data
+        sr= 16000
         onset_env = librosa.onset.onset_strength(y=y, sr=sr)
         tempo, _ = librosa.beat.beat_track(onset_envelope=onset_env, sr=sr)
         return tempo

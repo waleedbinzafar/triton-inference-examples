@@ -1,1 +1,1 @@
-docker build . -t triton-server-dev
+docker build . -t triton-poc
